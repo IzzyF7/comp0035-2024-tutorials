@@ -53,19 +53,33 @@ def prepare_dataframe(dataframe):
      #create a dataframe with missing rows of df_prepared
     #missing_rows = df[df_prepared.isna().any(axis=1)]
     #missing_columns = df[df_prepared.isna().any(axis=0)]
+    
+    replacement_names = {
+        'UK': 'Great Britain',
+        'USA': 'United States of America',
+        'Korea': 'Republic of Korea',
+        'Russia': 'Russian Federation',
+        'China': "People's Republic of China"
+    }
+    df_prepared['country'] = df_prepared['country'].replace(replacement_names)
 
-    #drop row 0
+
+    #drop row 0, 17 and 31
     df_prepared = df_prepared.drop(index=[0, 17, 31])
+    df_prepared = df_prepared.reset_index(drop=True)
 
     #covert float columns to int
-    float_columns = df_prepared.select_dtypes(include=['float'])
-    for column in float_columns: 
-        df_prepared[column] = df_prepared[column].astype('int')
+    float_columns = df_prepared.select_dtypes(include=['float64'])
+    for column in float_columns:
+        try:  
+            df_prepared[column] = df_prepared[column].astype('int')
+        except ValueError as e:
+            print(f"Error, can't convert column {df_prepared[column].name} to int: {e}")
 
     #strip whitespace from the 'type' column
-    df['type'] = df['type'].str.strip()
+    df_prepared['type'] = df_prepared['type'].str.strip()
     #change all the values in the 'type' column to lowercase
-    df['type'] = df['type'].str.lower()
+    df_prepared['type'] = df_prepared['type'].str.lower()
 
     #add a new column called duration which can be calculated by subtracting the start date from the end, after the end column 
     #df_prepared['duration'] = df_prepared['end'] - df_prepared['start']
@@ -94,13 +108,12 @@ if __name__ == '__main__':
     df3 = pd.read_excel(excel_file, sheet_name= "medal_standings")
     describe_dataframe(df3)
 
-    prepare_dataframe(df)
+    final_data = prepare_dataframe(df)
     
     #print unique values for the 'type' column
-    print(df['type'].unique())
+    print(final_data['type'].unique())
     print(prepare_dataframe(df))
     
-
 
     
     
