@@ -77,3 +77,4 @@ if __name__ == '__main__':
     sample_histogram(df)
     sample_boxplot(df)
     sample_lineplot(df)
+    
